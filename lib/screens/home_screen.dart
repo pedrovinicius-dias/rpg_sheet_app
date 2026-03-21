@@ -57,8 +57,8 @@ class HomeScreen extends ConsumerWidget {
     showAboutDialog(
       context: context,
       applicationName: 'D&D Sheet App',
-      applicationVersion: '1.0.0',
-      applicationLegalese: '© 2024 | Uso pessoal\nD&D é marca registrada da Wizards of the Coast',
+      applicationVersion: '0.1.1',
+      applicationLegalese: '© 2026 Pedro Vinícius | Uso pessoal\nD&D é marca registrada da Wizards of the Coast\nTodos os Direitos Reservados',
     );
   }
 }
