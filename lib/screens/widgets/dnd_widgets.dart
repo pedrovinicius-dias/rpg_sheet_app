@@ -147,7 +147,7 @@ class StatBox extends StatelessWidget {
 
 // ── HP Tracker ────────────────────────────────────────────────────────────
 
-class HpTracker extends StatelessWidget {
+class HpTracker extends StatefulWidget {
   final int current;
   final int max;
   final int temp;
@@ -165,12 +165,74 @@ class HpTracker extends StatelessWidget {
     this.onTempChanged,
   });
 
+  @override
+  State<HpTracker> createState() => _HpTrackerState();
+}
+
+class _HpTrackerState extends State<HpTracker> {
   Color get _hpColor {
-    final pct = max > 0 ? current / max : 0.0;
+    final pct = widget.max > 0 ? widget.current / widget.max : 0.0;
     if (pct > 0.5) return AppColors.hpFull;
     if (pct > 0.25) return AppColors.hpMid;
     return AppColors.hpLow;
   }
+
+  void _editDialog(String label, int current, ValueChanged<int> onChanged) {
+  final ctrl = TextEditingController(text: '$current');
+  String? errorText;
+
+  showDialog(
+    context: context,
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setStateDialog) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text(label,
+          style: const TextStyle(color: AppColors.gold)),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          style: const TextStyle(
+            color: AppColors.textPrimary, fontSize: 28),
+          textAlign: TextAlign.center,
+          decoration: InputDecoration(
+            errorText: errorText,
+            errorStyle: const TextStyle(
+              color: AppColors.danger, fontSize: 12),
+          ),
+          onChanged: (_) {
+            // Limpa o erro enquanto o usuário digita
+            if (errorText != null) {
+              setStateDialog(() => errorText = null);
+            }
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar',
+              style: TextStyle(color: AppColors.textSecondary))),
+          ElevatedButton(
+            onPressed: () {
+              final v = int.tryParse(ctrl.text) ?? current;
+
+              // Valida: HP atual não pode ultrapassar HP máximo
+              if (label == 'HP Atual' && v > widget.max) {
+                setStateDialog(() => errorText =
+                  'Não pode ultrapassar o HP máximo (${widget.max})');
+                return;
+              }
+
+              onChanged(v.clamp(0, 9999));
+              Navigator.pop(ctx);
+            },
+            child: const Text('OK')),
+        ],
+      ),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -186,7 +248,8 @@ class HpTracker extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
-            value: max > 0 ? (current / max).clamp(0.0, 1.0) : 0,
+            value: widget.max > 0
+                ? (widget.current / widget.max).clamp(0.0, 1.0) : 0,
             backgroundColor: AppColors.surfaceVariant,
             valueColor: AlwaysStoppedAnimation(_hpColor),
             minHeight: 6,
@@ -195,84 +258,53 @@ class HpTracker extends StatelessWidget {
         const SizedBox(height: 12),
         Row(children: [
           // HP Atual
-          Expanded(child: _hpField(
-            label: 'HP ATUAL',
-            value: current,
-            color: _hpColor,
-            onChanged: onCurrentChanged,
+          Expanded(child: GestureDetector(
+            onTap: widget.onCurrentChanged != null
+                ? () => _editDialog(
+                    'HP Atual', widget.current, widget.onCurrentChanged!)
+                : null,
+            child: _hpField('HP ATUAL', widget.current, _hpColor),
           )),
           const SizedBox(width: 8),
           // HP Máximo
-          Expanded(child: _hpField(
-            label: 'HP MÁX',
-            value: max,
-            color: AppColors.textSecondary,
-            onChanged: onMaxChanged,
+          Expanded(child: GestureDetector(
+            onTap: widget.onMaxChanged != null
+                ? () => _editDialog(
+                    'HP Máximo', widget.max, widget.onMaxChanged!)
+                : null,
+            child: _hpField('HP MÁX', widget.max, AppColors.textSecondary),
           )),
           const SizedBox(width: 8),
           // HP Temporário
-          Expanded(child: _hpField(
-            label: 'HP TEMP',
-            value: temp,
-            color: AppColors.hpTemp,
-            onChanged: onTempChanged,
+          Expanded(child: GestureDetector(
+            onTap: widget.onTempChanged != null
+                ? () => _editDialog(
+                    'HP Temporário', widget.temp, widget.onTempChanged!)
+                : null,
+            child: _hpField('HP TEMP', widget.temp, AppColors.hpTemp),
           )),
         ]),
-        if (onCurrentChanged != null) ...[
-          const SizedBox(height: 8),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            _quickBtn('-5', () => onCurrentChanged?.call((current - 5).clamp(0, max + 999))),
-            _quickBtn('-1', () => onCurrentChanged?.call((current - 1).clamp(0, max + 999))),
-            const SizedBox(width: 4),
-            _quickBtn('+1', () => onCurrentChanged?.call(current + 1), isPositive: true),
-            _quickBtn('+5', () => onCurrentChanged?.call(current + 5), isPositive: true),
-          ]),
-        ],
       ]),
     );
   }
 
-  Widget _hpField({
-    required String label,
-    required int value,
-    required Color color,
-    ValueChanged<int>? onChanged,
-  }) {
-    return GestureDetector(
-      onTap: onChanged != null
-          ? () {/* handled by parent or dialog */}
-          : null,
-      child: Column(children: [
-        Text(label,
-          style: const TextStyle(
-            color: AppColors.textHint, fontSize: 9, letterSpacing: 1,
-          )),
-        const SizedBox(height: 2),
-        Text('$value',
-          style: TextStyle(
-            color: color, fontSize: 26, fontWeight: FontWeight.w700,
-          )),
-      ]),
-    );
-  }
-
-  Widget _quickBtn(String label, VoidCallback onTap, {bool isPositive = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          minimumSize: Size.zero,
-          side: BorderSide(
-            color: isPositive ? AppColors.hpFull : AppColors.hpLow,
-          ),
-          foregroundColor: isPositive ? AppColors.hpFull : AppColors.hpLow,
-          textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-        ),
-        child: Text(label),
-      ),
-    );
+  Widget _hpField(String label, int value, Color color) {
+    return Column(children: [
+      Text(label,
+        style: const TextStyle(
+          color: AppColors.textHint, fontSize: 9, letterSpacing: 1,
+        )),
+      const SizedBox(height: 2),
+      Text('$value',
+        style: TextStyle(
+          color: color, fontSize: 26, fontWeight: FontWeight.w700,
+        )),
+      const SizedBox(height: 2),
+      Text('toque para editar',
+        style: const TextStyle(
+          color: AppColors.textHint, fontSize: 8,
+        )),
+    ]);
   }
 }
 
