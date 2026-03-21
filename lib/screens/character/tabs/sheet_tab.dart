@@ -27,7 +27,6 @@ class SheetTab extends ConsumerWidget {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
         // ── Header: identidade ──────────────────────────────────────────────
         _HeaderSection(character: character, onChanged: onChanged, ref: ref),
         const SizedBox(height: 16),
@@ -49,12 +48,13 @@ class SheetTab extends ConsumerWidget {
 
         // ── Perícias ────────────────────────────────────────────────────────
         SectionTitle('Perícias',
-          trailing: Text(
-            'Prof. +${StatCalculator.proficiencyBonus(character.level)}',
-            style: const TextStyle(
-              color: AppColors.gold, fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ))),
+            trailing: Text(
+                'Prof. +${StatCalculator.proficiencyBonus(character.level)}',
+                style: const TextStyle(
+                  color: AppColors.gold,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ))),
         _SkillsSection(character: character, onChanged: onChanged),
         const SizedBox(height: 4),
 
@@ -78,7 +78,8 @@ class SheetTab extends ConsumerWidget {
           label: 'Idiomas, armas, armaduras, ferramentas...',
           value: character.otherProficiencies,
           maxLines: 4,
-          onChanged: (v) => onChanged(character.copyWith(otherProficiencies: v)),
+          onChanged: (v) =>
+              onChanged(character.copyWith(otherProficiencies: v)),
         ),
         const SizedBox(height: 4),
 
@@ -102,15 +103,16 @@ class _HeaderSection extends StatelessWidget {
   final Character character;
   final void Function(Character) onChanged;
   final WidgetRef ref;
-  const _HeaderSection({
-    required this.character, required this.onChanged, required this.ref});
+  const _HeaderSection(
+      {required this.character, required this.onChanged, required this.ref});
 
   Future<void> _pickAvatar(BuildContext context) async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery, imageQuality: 80);
+    final picked =
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
     if (picked == null) return;
-    final saved = await ref.read(repositoryProvider)
+    final saved = await ref
+        .read(repositoryProvider)
         .saveImage(character.id, picked.path, 'avatar');
     onChanged(character.copyWith(avatarPath: saved));
   }
@@ -131,7 +133,8 @@ class _HeaderSection extends StatelessWidget {
       ),
       const SizedBox(width: 12),
       // Campos de identidade
-      Expanded(child: Column(children: [
+      Expanded(
+          child: Column(children: [
         DndTextField(
           label: 'Nome do Personagem',
           value: character.name,
@@ -139,7 +142,8 @@ class _HeaderSection extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Row(children: [
-          Expanded(child: _DropdownField(
+          Expanded(
+              child: _DropdownField(
             label: 'Classe',
             value: character.className,
             items: DnDConstants.classes,
@@ -149,25 +153,29 @@ class _HeaderSection extends StatelessWidget {
             )),
           )),
           const SizedBox(width: 6),
-          SizedBox(width: 64, child: DndTextField(
-            label: 'Nível',
-            value: '${character.level}',
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            onChanged: (v) => onChanged(
-              character.copyWith(level: int.tryParse(v) ?? character.level)),
-          )),
+          SizedBox(
+              width: 64,
+              child: DndTextField(
+                label: 'Nível',
+                value: '${character.level}',
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onChanged: (v) => onChanged(character.copyWith(
+                    level: int.tryParse(v) ?? character.level)),
+              )),
         ]),
         const SizedBox(height: 6),
         Row(children: [
-          Expanded(child: _DropdownField(
+          Expanded(
+              child: _DropdownField(
             label: 'Raça',
             value: character.race,
             items: DnDConstants.races,
             onChanged: (v) => onChanged(character.copyWith(race: v)),
           )),
           const SizedBox(width: 6),
-          Expanded(child: _DropdownField(
+          Expanded(
+              child: _DropdownField(
             label: 'Antecedente',
             value: character.background,
             items: DnDConstants.backgrounds,
@@ -176,14 +184,16 @@ class _HeaderSection extends StatelessWidget {
         ]),
         const SizedBox(height: 6),
         Row(children: [
-          Expanded(child: _DropdownField(
+          Expanded(
+              child: _DropdownField(
             label: 'Alinhamento',
             value: character.alignment,
             items: DnDConstants.alignments,
             onChanged: (v) => onChanged(character.copyWith(alignment: v)),
           )),
           const SizedBox(width: 6),
-          Expanded(child: DndTextField(
+          Expanded(
+              child: DndTextField(
             label: 'Jogador',
             value: character.playerName,
             onChanged: (v) => onChanged(character.copyWith(playerName: v)),
@@ -195,8 +205,8 @@ class _HeaderSection extends StatelessWidget {
           value: '${character.experience}',
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          onChanged: (v) => onChanged(
-            character.copyWith(experience: int.tryParse(v) ?? 0)),
+          onChanged: (v) =>
+              onChanged(character.copyWith(experience: int.tryParse(v) ?? 0)),
         ),
       ])),
     ]);
@@ -208,26 +218,38 @@ class _HeaderSection extends StatelessWidget {
 class _AbilityScoresSection extends StatelessWidget {
   final Character character;
   final void Function(Character) onChanged;
-  const _AbilityScoresSection({required this.character, required this.onChanged});
+  const _AbilityScoresSection(
+      {required this.character, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     final attrs = [
       ('FOR', character.strength, (v) => character.copyWith(strength: v)),
       ('DES', character.dexterity, (v) => character.copyWith(dexterity: v)),
-      ('CON', character.constitution, (v) => character.copyWith(constitution: v)),
-      ('INT', character.intelligence, (v) => character.copyWith(intelligence: v)),
+      (
+        'CON',
+        character.constitution,
+        (v) => character.copyWith(constitution: v)
+      ),
+      (
+        'INT',
+        character.intelligence,
+        (v) => character.copyWith(intelligence: v)
+      ),
       ('SAB', character.wisdom, (v) => character.copyWith(wisdom: v)),
       ('CAR', character.charisma, (v) => character.copyWith(charisma: v)),
     ];
 
     return Wrap(
-      spacing: 8, runSpacing: 8,
-      children: attrs.map((a) => StatBox(
-        label: a.$1,
-        value: a.$2,
-        onChanged: (v) => onChanged(a.$3(v)),
-      )).toList(),
+      spacing: 8,
+      runSpacing: 8,
+      children: attrs
+          .map((a) => StatBox(
+                label: a.$1,
+                value: a.$2,
+                onChanged: (v) => onChanged(a.$3(v)),
+              ))
+          .toList(),
     );
   }
 }
@@ -241,60 +263,87 @@ class _CombatSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final initStr = StatCalculator.initiativeStr(
-      character.dexterity, bonus: character.initiativeBonus);
+    final initStr = StatCalculator.initiativeStr(character.dexterity,
+        bonus: character.initiativeBonus);
     final profBonus = StatCalculator.proficiencyBonus(character.level);
 
     return Column(children: [
       // Row: CA, Iniciativa, Deslocamento, Proficiência, Inspiração
       Row(children: [
-        Expanded(child: CombatStatBox(
-          label: 'CA', value: '${character.armorClass}',
+        Expanded(
+            child: CombatStatBox(
+          label: 'CA',
+          value: '${character.armorClass}',
           icon: Icons.shield_outlined,
-          onTap: () => _editInt(context, 'Classe de Armadura',
-            character.armorClass, 1, 30,
-            (v) => onChanged(character.copyWith(armorClass: v))),
+          onTap: () => _editInt(
+              context,
+              'Classe de Armadura',
+              character.armorClass,
+              1,
+              30,
+              (v) => onChanged(character.copyWith(armorClass: v))),
         )),
         const SizedBox(width: 8),
-        Expanded(child: CombatStatBox(
-          label: 'INICIATIVA', value: initStr,
+        Expanded(
+            child: CombatStatBox(
+          label: 'INICIATIVA',
+          value: initStr,
           icon: Icons.flash_on_rounded,
-          onTap: () => _editInt(context, 'Bônus Extra de Iniciativa',
-            character.initiativeBonus, -10, 20,
-            (v) => onChanged(character.copyWith(initiativeBonus: v))),
+          onTap: () => _editInt(
+              context,
+              'Bônus Extra de Iniciativa',
+              character.initiativeBonus,
+              -10,
+              20,
+              (v) => onChanged(character.copyWith(initiativeBonus: v))),
         )),
         const SizedBox(width: 8),
-        Expanded(child: CombatStatBox(
-          label: 'DESLOCAMENTO', value: '${character.speed}m',
+        Expanded(
+            child: CombatStatBox(
+          label: 'DESLOCAMENTO',
+          value: '${character.speed}m',
           icon: Icons.directions_run,
-          onTap: () => _editInt(context, 'Deslocamento (metros)',
-            character.speed, 0, 60,
-            (v) => onChanged(character.copyWith(speed: v))),
+          onTap: () => _editInt(
+              context,
+              'Deslocamento (metros)',
+              character.speed,
+              0,
+              60,
+              (v) => onChanged(character.copyWith(speed: v))),
         )),
         const SizedBox(width: 8),
-        Expanded(child: CombatStatBox(
-          label: 'PROF.', value: '+$profBonus',
+        Expanded(
+            child: CombatStatBox(
+          label: 'PROF.',
+          value: '+$profBonus',
           icon: Icons.stars_rounded,
         )),
         const SizedBox(width: 8),
-        Expanded(child: GestureDetector(
+        Expanded(
+            child: GestureDetector(
           onTap: () => onChanged(
-            character.copyWith(inspiration: !character.inspiration)),
+              character.copyWith(inspiration: !character.inspiration)),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
               color: character.inspiration
-                  ? AppColors.gold.withOpacity(0.2) : AppColors.card,
+                  ? AppColors.gold.withOpacity(0.2)
+                  : AppColors.card,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: character.inspiration
-                  ? AppColors.gold : AppColors.cardBorder),
+              border: Border.all(
+                  color: character.inspiration
+                      ? AppColors.gold
+                      : AppColors.cardBorder),
             ),
             child: Column(children: [
               Icon(character.inspiration ? Icons.star : Icons.star_border,
-                color: AppColors.gold, size: 16),
+                  color: AppColors.gold, size: 16),
               const SizedBox(height: 2),
-              const Text('INSPI.', style: TextStyle(
-                color: AppColors.textHint, fontSize: 9, letterSpacing: 0.8)),
+              const Text('INSPI.',
+                  style: TextStyle(
+                      color: AppColors.textHint,
+                      fontSize: 9,
+                      letterSpacing: 0.8)),
             ]),
           ),
         )),
@@ -314,35 +363,96 @@ class _CombatSection extends StatelessWidget {
 
       // Dado de vida & salvaguarda contra morte
       Row(children: [
-        Expanded(child: Container(
+        Expanded(
+            child: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.card, borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppColors.cardBorder)),
+              color: AppColors.card,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.cardBorder)),
           child: Column(children: [
             const Text('DADO DE VIDA',
-              style: TextStyle(color: AppColors.textHint,
-                fontSize: 9, letterSpacing: 1)),
+                style: TextStyle(
+                    color: AppColors.textHint, fontSize: 9, letterSpacing: 1)),
             const SizedBox(height: 4),
-            Row(mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('${character.level}',
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Text('${character.level - character.hitDiceUsed}',
+                  style: TextStyle(
+                      color: character.hitDiceUsed >= character.level
+                          ? AppColors.danger
+                          : AppColors.textPrimary,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700)),
+              Text(character.hitDie,
                   style: const TextStyle(
-                    color: AppColors.textPrimary, fontSize: 20,
-                    fontWeight: FontWeight.w700)),
-                Text(character.hitDie,
-                  style: const TextStyle(
-                    color: AppColors.gold, fontSize: 20,
-                    fontWeight: FontWeight.w700)),
-              ]),
+                      color: AppColors.gold,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700)),
+            ]),
+            const SizedBox(height: 6),
+            // Botões gastar / recuperar
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              // Gastar 1 dado
+              InkWell(
+                onTap: character.hitDiceUsed < character.level
+                    ? () => onChanged(character.copyWith(
+                        hitDiceUsed: character.hitDiceUsed + 1))
+                    : null,
+                borderRadius: BorderRadius.circular(6),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                          color: character.hitDiceUsed < character.level
+                              ? AppColors.danger
+                              : AppColors.cardBorder)),
+                  child: Text('−1',
+                      style: TextStyle(
+                          color: character.hitDiceUsed < character.level
+                              ? AppColors.danger
+                              : AppColors.textHint,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700)),
+                ),
+              ),
+              const SizedBox(width: 6),
+              // Recuperar 1 dado
+              InkWell(
+                onTap: character.hitDiceUsed > 0
+                    ? () => onChanged(character.copyWith(
+                        hitDiceUsed: character.hitDiceUsed - 1))
+                    : null,
+                borderRadius: BorderRadius.circular(6),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                          color: character.hitDiceUsed > 0
+                              ? AppColors.success
+                              : AppColors.cardBorder)),
+                  child: Text('+1',
+                      style: TextStyle(
+                          color: character.hitDiceUsed > 0
+                              ? AppColors.success
+                              : AppColors.textHint,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ]),
             const SizedBox(height: 4),
-            Text('${character.hitDiceUsed}/${character.level} usados',
-              style: const TextStyle(
-                color: AppColors.textHint, fontSize: 10)),
+            Text('${character.hitDiceUsed}/${character.level} gastos',
+                style:
+                    const TextStyle(color: AppColors.textHint, fontSize: 10)),
           ]),
         )),
         const SizedBox(width: 8),
-        Expanded(child: DeathSavesWidget(
+        Expanded(
+            child: DeathSavesWidget(
           successes: character.deathSaveSuccesses,
           failures: character.deathSaveFailures,
           onSuccessChanged: (v) =>
@@ -354,8 +464,8 @@ class _CombatSection extends StatelessWidget {
     ]);
   }
 
-  void _editInt(BuildContext ctx, String label, int current,
-      int min, int max, void Function(int) cb) {
+  void _editInt(BuildContext ctx, String label, int current, int min, int max,
+      void Function(int) cb) {
     final ctrl = TextEditingController(text: '$current');
     showDialog(
       context: ctx,
@@ -366,20 +476,24 @@ class _CombatSection extends StatelessWidget {
           controller: ctrl,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(signed: true),
-          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'-?\d*'))],
-          style: const TextStyle(
-            color: AppColors.textPrimary, fontSize: 28),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'-?\d*'))
+          ],
+          style: const TextStyle(color: AppColors.textPrimary, fontSize: 28),
           textAlign: TextAlign.center,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar',
-              style: TextStyle(color: AppColors.textSecondary))),
-          ElevatedButton(onPressed: () {
-            final v = int.tryParse(ctrl.text) ?? current;
-            cb(v.clamp(min, max));
-            Navigator.pop(ctx);
-          }, child: const Text('OK')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancelar',
+                  style: TextStyle(color: AppColors.textSecondary))),
+          ElevatedButton(
+              onPressed: () {
+                final v = int.tryParse(ctrl.text) ?? current;
+                cb(v.clamp(min, max));
+                Navigator.pop(ctx);
+              },
+              child: const Text('OK')),
         ],
       ),
     );
@@ -391,17 +505,25 @@ class _CombatSection extends StatelessWidget {
 class _SavingThrowsSection extends StatelessWidget {
   final Character character;
   final void Function(Character) onChanged;
-  const _SavingThrowsSection({required this.character, required this.onChanged});
+  const _SavingThrowsSection(
+      {required this.character, required this.onChanged});
 
   int _score(String ability) {
     switch (ability) {
-      case 'strength': return character.strength;
-      case 'dexterity': return character.dexterity;
-      case 'constitution': return character.constitution;
-      case 'intelligence': return character.intelligence;
-      case 'wisdom': return character.wisdom;
-      case 'charisma': return character.charisma;
-      default: return 10;
+      case 'strength':
+        return character.strength;
+      case 'dexterity':
+        return character.dexterity;
+      case 'constitution':
+        return character.constitution;
+      case 'intelligence':
+        return character.intelligence;
+      case 'wisdom':
+        return character.wisdom;
+      case 'charisma':
+        return character.charisma;
+      default:
+        return 10;
     }
   }
 
@@ -410,8 +532,9 @@ class _SavingThrowsSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.card, borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.cardBorder)),
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.cardBorder)),
       child: Column(
         children: DnDConstants.abilities.map((ability) {
           final isProficient =
@@ -424,40 +547,44 @@ class _SavingThrowsSection extends StatelessWidget {
           final valStr = val >= 0 ? '+$val' : '$val';
           return InkWell(
             onTap: () {
-              final updated = Map<String, bool>.from(
-                  character.savingThrowProficiencies);
+              final updated =
+                  Map<String, bool>.from(character.savingThrowProficiencies);
               updated[ability] = !isProficient;
-              onChanged(character.copyWith(
-                  savingThrowProficiencies: updated));
+              onChanged(character.copyWith(savingThrowProficiencies: updated));
             },
             borderRadius: BorderRadius.circular(4),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 2),
               child: Row(children: [
                 Container(
-                  width: 14, height: 14,
+                  width: 14,
+                  height: 14,
                   margin: const EdgeInsets.only(right: 8),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isProficient
-                        ? AppColors.gold : Colors.transparent,
+                    color: isProficient ? AppColors.gold : Colors.transparent,
                     border: Border.all(
-                      color: isProficient
-                          ? AppColors.gold : AppColors.noProficiency,
-                      width: 1.5),
+                        color: isProficient
+                            ? AppColors.gold
+                            : AppColors.noProficiency,
+                        width: 1.5),
                   ),
                 ),
-                SizedBox(width: 28,
-                  child: Text(valStr, textAlign: TextAlign.right,
-                    style: TextStyle(
-                      color: isProficient
-                          ? AppColors.textPrimary : AppColors.textSecondary,
-                      fontSize: 13, fontWeight: FontWeight.w600,
-                    ))),
+                SizedBox(
+                    width: 28,
+                    child: Text(valStr,
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          color: isProficient
+                              ? AppColors.textPrimary
+                              : AppColors.textSecondary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ))),
                 const SizedBox(width: 8),
                 Text(DnDConstants.abilityNames[ability]!,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary, fontSize: 13)),
+                    style: const TextStyle(
+                        color: AppColors.textPrimary, fontSize: 13)),
               ]),
             ),
           );
@@ -476,13 +603,20 @@ class _SkillsSection extends StatelessWidget {
 
   int _score(String ability) {
     switch (ability) {
-      case 'strength': return character.strength;
-      case 'dexterity': return character.dexterity;
-      case 'constitution': return character.constitution;
-      case 'intelligence': return character.intelligence;
-      case 'wisdom': return character.wisdom;
-      case 'charisma': return character.charisma;
-      default: return 10;
+      case 'strength':
+        return character.strength;
+      case 'dexterity':
+        return character.dexterity;
+      case 'constitution':
+        return character.constitution;
+      case 'intelligence':
+        return character.intelligence;
+      case 'wisdom':
+        return character.wisdom;
+      case 'charisma':
+        return character.charisma;
+      default:
+        return 10;
     }
   }
 
@@ -490,16 +624,16 @@ class _SkillsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final passivePerc = StatCalculator.passivePerception(
       wisdomScore: character.wisdom,
-      perceptionProficiency:
-          character.skillProficiencies['perception'] ?? 0,
+      perceptionProficiency: character.skillProficiencies['perception'] ?? 0,
       characterLevel: character.level,
     );
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.card, borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.cardBorder)),
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.cardBorder)),
       child: Column(children: [
         // Percepção Passiva
         Padding(
@@ -508,12 +642,13 @@ class _SkillsSection extends StatelessWidget {
             const Icon(Icons.visibility, color: AppColors.gold, size: 14),
             const SizedBox(width: 6),
             const Text('Percepção Passiva',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
             const Spacer(),
             Text('$passivePerc',
-              style: const TextStyle(
-                color: AppColors.gold, fontSize: 14,
-                fontWeight: FontWeight.w700)),
+                style: const TextStyle(
+                    color: AppColors.gold,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700)),
           ]),
         ),
         const Divider(height: 1),
@@ -537,7 +672,8 @@ class _SkillsSection extends StatelessWidget {
             proficiencyLevel: profLevel,
             value: val,
             onProficiencyChanged: (level) {
-              final updated = Map<String, int>.from(character.skillProficiencies);
+              final updated =
+                  Map<String, int>.from(character.skillProficiencies);
               updated[skill] = level;
               onChanged(character.copyWith(skillProficiencies: updated));
             },
@@ -560,52 +696,71 @@ class _AttacksSection extends ConsumerWidget {
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       SectionTitle('Ataques & Conjuração',
-        trailing: IconButton(
-          icon: const Icon(Icons.add_circle, color: AppColors.gold, size: 22),
-          onPressed: () => ref.read(attacksProvider(character.id).notifier).add(),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-        )),
+          trailing: IconButton(
+            icon: const Icon(Icons.add_circle, color: AppColors.gold, size: 22),
+            onPressed: () =>
+                ref.read(attacksProvider(character.id).notifier).add(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          )),
       Container(
         decoration: BoxDecoration(
-          color: AppColors.card, borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.cardBorder)),
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.cardBorder)),
         child: Column(children: [
           // Cabeçalho
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Row(children: [
-              Expanded(flex: 3, child: Text('NOME',
-                style: TextStyle(color: AppColors.textHint,
-                  fontSize: 9, letterSpacing: 1))),
-              Expanded(flex: 2, child: Text('BÔN. ATAQUE',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textHint,
-                  fontSize: 9, letterSpacing: 1))),
-              Expanded(flex: 3, child: Text('DANO/TIPO',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textHint,
-                  fontSize: 9, letterSpacing: 1))),
+              Expanded(
+                  flex: 3,
+                  child: Text('NOME',
+                      style: TextStyle(
+                          color: AppColors.textHint,
+                          fontSize: 9,
+                          letterSpacing: 1))),
+              Expanded(
+                  flex: 2,
+                  child: Text('BÔN. ATAQUE',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: AppColors.textHint,
+                          fontSize: 9,
+                          letterSpacing: 1))),
+              Expanded(
+                  flex: 3,
+                  child: Text('DANO/TIPO',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: AppColors.textHint,
+                          fontSize: 9,
+                          letterSpacing: 1))),
               SizedBox(width: 24),
             ]),
           ),
           const Divider(height: 1),
           attacksAsync.when(
             loading: () => const Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator(
-                color: AppColors.gold, strokeWidth: 2))),
+                padding: EdgeInsets.all(16),
+                child: Center(
+                    child: CircularProgressIndicator(
+                        color: AppColors.gold, strokeWidth: 2))),
             error: (e, _) => Text('Erro: $e'),
             data: (attacks) => attacks.isEmpty
                 ? const Padding(
                     padding: EdgeInsets.all(16),
-                    child: Center(child: Text(
-                      'Nenhum ataque. Toque + para adicionar.',
-                      style: TextStyle(color: AppColors.textHint,
-                        fontSize: 12, fontStyle: FontStyle.italic))))
-                : Column(children: attacks.map((attack) =>
-                    _AttackRow(attack: attack, characterId: character.id))
-                    .toList()),
+                    child: Center(
+                        child: Text('Nenhum ataque. Toque + para adicionar.',
+                            style: TextStyle(
+                                color: AppColors.textHint,
+                                fontSize: 12,
+                                fontStyle: FontStyle.italic))))
+                : Column(
+                    children: attacks
+                        .map((attack) => _AttackRow(
+                            attack: attack, characterId: character.id))
+                        .toList()),
           ),
         ]),
       ),
@@ -625,38 +780,47 @@ class _AttackRow extends ConsumerWidget {
       key: Key(attack.id),
       direction: DismissDirection.endToStart,
       background: Container(
-        color: AppColors.danger,
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 16),
-        child: const Icon(Icons.delete, color: Colors.white)),
+          color: AppColors.danger,
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 16),
+          child: const Icon(Icons.delete, color: Colors.white)),
       onDismissed: (_) => notifier.remove(attack.id),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Row(children: [
-          Expanded(flex: 3, child: _InlineTextField(
-            value: attack.name,
-            hint: 'Espada Longa',
-            onChanged: (v) => notifier.atualizar(attack.copyWith(name: v)),
-          )),
-          Expanded(flex: 2, child: _InlineTextField(
-            value: attack.attackBonus,
-            hint: '+5',
-            textAlign: TextAlign.center,
-            onChanged: (v) => notifier.atualizar(attack.copyWith(attackBonus: v)),
-          )),
-          Expanded(flex: 3, child: _InlineTextField(
-            value: attack.damageType,
-            hint: '1d8+3 cortante',
-            textAlign: TextAlign.center,
-            onChanged: (v) => notifier.atualizar(attack.copyWith(damageType: v)),
-          )),
-          SizedBox(width: 24,
-            child: IconButton(
-              icon: const Icon(Icons.close, size: 16,
-                color: AppColors.textHint),
-              padding: EdgeInsets.zero,
-              onPressed: () => notifier.remove(attack.id),
-            )),
+          Expanded(
+              flex: 3,
+              child: _InlineTextField(
+                value: attack.name,
+                hint: 'Espada Longa',
+                onChanged: (v) => notifier.atualizar(attack.copyWith(name: v)),
+              )),
+          Expanded(
+              flex: 2,
+              child: _InlineTextField(
+                value: attack.attackBonus,
+                hint: '+5',
+                textAlign: TextAlign.center,
+                onChanged: (v) =>
+                    notifier.atualizar(attack.copyWith(attackBonus: v)),
+              )),
+          Expanded(
+              flex: 3,
+              child: _InlineTextField(
+                value: attack.damageType,
+                hint: '1d8+3 cortante',
+                textAlign: TextAlign.center,
+                onChanged: (v) =>
+                    notifier.atualizar(attack.copyWith(damageType: v)),
+              )),
+          SizedBox(
+              width: 24,
+              child: IconButton(
+                icon: const Icon(Icons.close,
+                    size: 16, color: AppColors.textHint),
+                padding: EdgeInsets.zero,
+                onPressed: () => notifier.remove(attack.id),
+              )),
         ]),
       ),
     );
@@ -703,21 +867,26 @@ class _InlineTextFieldState extends State<_InlineTextField> {
   }
 
   @override
-  void dispose() { _ctrl.dispose(); _focus.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => TextField(
-    controller: _ctrl,
-    focusNode: _focus,
-    textAlign: widget.textAlign,
-    style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
-    decoration: InputDecoration(
-      hintText: widget.hint,
-      hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 12),
-      border: InputBorder.none,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-    ),
-  );
+        controller: _ctrl,
+        focusNode: _focus,
+        textAlign: widget.textAlign,
+        style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
+        decoration: InputDecoration(
+          hintText: widget.hint,
+          hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 12),
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        ),
+      );
 }
 
 // ── Equipamentos ──────────────────────────────────────────────────────────
@@ -734,21 +903,22 @@ class _EquipmentSection extends StatelessWidget {
       Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: AppColors.card, borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.cardBorder)),
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.cardBorder)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _CurrencyField('PC', character.copper,
-              (v) => onChanged(character.copyWith(copper: v))),
+                (v) => onChanged(character.copyWith(copper: v))),
             _CurrencyField('PP', character.silver,
-              (v) => onChanged(character.copyWith(silver: v))),
+                (v) => onChanged(character.copyWith(silver: v))),
             _CurrencyField('PE', character.electrum,
-              (v) => onChanged(character.copyWith(electrum: v))),
+                (v) => onChanged(character.copyWith(electrum: v))),
             _CurrencyField('PO', character.gold,
-              (v) => onChanged(character.copyWith(gold: v))),
+                (v) => onChanged(character.copyWith(gold: v))),
             _CurrencyField('PL', character.platinum,
-              (v) => onChanged(character.copyWith(platinum: v))),
+                (v) => onChanged(character.copyWith(platinum: v))),
           ],
         ),
       ),
@@ -781,32 +951,38 @@ class _CurrencyField extends StatelessWidget {
             backgroundColor: AppColors.surface,
             title: Text(label, style: const TextStyle(color: AppColors.gold)),
             content: TextField(
-              controller: ctrl, autofocus: true,
+              controller: ctrl,
+              autofocus: true,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              style: const TextStyle(color: AppColors.textPrimary, fontSize: 24),
+              style:
+                  const TextStyle(color: AppColors.textPrimary, fontSize: 24),
               textAlign: TextAlign.center,
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar',
-                  style: TextStyle(color: AppColors.textSecondary))),
-              ElevatedButton(onPressed: () {
-                onChanged(int.tryParse(ctrl.text) ?? value);
-                Navigator.pop(context);
-              }, child: const Text('OK')),
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar',
+                      style: TextStyle(color: AppColors.textSecondary))),
+              ElevatedButton(
+                  onPressed: () {
+                    onChanged(int.tryParse(ctrl.text) ?? value);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('OK')),
             ],
           ),
         );
       },
       child: Column(children: [
         Text('$value',
-          style: const TextStyle(
-            color: AppColors.gold, fontSize: 18,
-            fontWeight: FontWeight.w700)),
+            style: const TextStyle(
+                color: AppColors.gold,
+                fontSize: 18,
+                fontWeight: FontWeight.w700)),
         Text(label,
-          style: const TextStyle(
-            color: AppColors.textHint, fontSize: 9, letterSpacing: 1)),
+            style: const TextStyle(
+                color: AppColors.textHint, fontSize: 9, letterSpacing: 1)),
       ]),
     );
   }
@@ -874,17 +1050,22 @@ class _DropdownField extends StatelessWidget {
     return DropdownButtonFormField<String>(
       initialValue: currentValue,
       hint: Text(label,
-        style: const TextStyle(color: AppColors.textHint, fontSize: 13)),
+          style: const TextStyle(color: AppColors.textHint, fontSize: 13)),
       decoration: InputDecoration(labelText: label),
       dropdownColor: AppColors.surface,
       style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
       icon: const Icon(Icons.arrow_drop_down, color: AppColors.gold, size: 18),
-      items: items.map((item) => DropdownMenuItem(
-        value: item,
-        child: Text(item,
-          style: const TextStyle(color: AppColors.textPrimary, fontSize: 13)),
-      )).toList(),
-      onChanged: (v) { if (v != null) onChanged(v); },
+      items: items
+          .map((item) => DropdownMenuItem(
+                value: item,
+                child: Text(item,
+                    style: const TextStyle(
+                        color: AppColors.textPrimary, fontSize: 13)),
+              ))
+          .toList(),
+      onChanged: (v) {
+        if (v != null) onChanged(v);
+      },
     );
   }
 }
