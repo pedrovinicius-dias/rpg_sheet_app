@@ -3,7 +3,7 @@
 Aplicativo cross-platform para gerenciamento de fichas de D&D 5e.  
 Funciona 100% offline. Dados salvos no próprio dispositivo.
 
-**Plataformas:** Android · iOS · Windows · macOS · Linux
+**Plataformas:** Android · Windows · Linux
 
 ---
 
