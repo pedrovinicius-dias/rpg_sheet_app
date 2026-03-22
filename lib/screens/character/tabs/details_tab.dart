@@ -20,16 +20,55 @@ class DetailsTab extends ConsumerWidget {
     required this.onSave,
   });
 
-  Future<void> _pickImage(
-      BuildContext context, WidgetRef ref, String name,
+  Future<void> _pickImage(BuildContext context, WidgetRef ref, String name,
       void Function(String) onPath) async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery, imageQuality: 80);
+    final picked =
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
     if (picked == null) return;
-    final saved = await ref.read(repositoryProvider)
+    final saved = await ref
+        .read(repositoryProvider)
         .saveImage(character.id, picked.path, name);
+    // Limpa o cache para forçar recarregamento
+    imageCache.clear();
+    imageCache.clearLiveImages();
     onPath(saved);
+  }
+
+  void _showImageOptions(BuildContext context, WidgetRef ref,
+      String currentPath, String name, void Function(String) onPath) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: AppColors.surface,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            child: Image.file(
+              File(currentPath),
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 280,
+              key: ValueKey(currentPath),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(children: [
+              Expanded(
+                  child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _pickImage(context, ref, name, onPath);
+                },
+                icon: const Icon(Icons.edit, size: 16),
+                label: const Text('Alterar'),
+              )),
+            ]),
+          ),
+        ]),
+      ),
+    );
   }
 
   @override
@@ -37,17 +76,24 @@ class DetailsTab extends ConsumerWidget {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
         // ── Aparência Física ─────────────────────────────────────────────────
         const SectionTitle('Aparência Física'),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // Imagem de aparência
           GestureDetector(
-            onTap: () => _pickImage(
-              context, ref, 'appearance',
-              (p) => onChanged(character.copyWith(appearancePath: p))),
+            onTap: () {
+              final path = character.appearancePath;
+              if (path != null && File(path).existsSync()) {
+                _showImageOptions(context, ref, path, 'appearance',
+                    (p) => onChanged(character.copyWith(appearancePath: p)));
+              } else {
+                _pickImage(context, ref, 'appearance',
+                    (p) => onChanged(character.copyWith(appearancePath: p)));
+              }
+            },
             child: Container(
-              width: 120, height: 160,
+              width: 120,
+              height: 160,
               decoration: BoxDecoration(
                 color: AppColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(10),
@@ -56,38 +102,51 @@ class DetailsTab extends ConsumerWidget {
               clipBehavior: Clip.antiAlias,
               child: character.appearancePath != null &&
                       File(character.appearancePath!).existsSync()
-                  ? Image.file(File(character.appearancePath!), fit: BoxFit.cover)
+                  ? Image.file(File(character.appearancePath!),
+                      fit: BoxFit.cover,
+                      key: ValueKey(character.appearancePath),
+                      gaplessPlayback: true)
                   : _noImagePlaceholder(),
             ),
           ),
           const SizedBox(width: 12),
           // Campos de aparência
-          Expanded(child: Column(children: [
+          Expanded(
+              child: Column(children: [
             Row(children: [
-              Expanded(child: DndTextField(
-                label: 'Idade', value: character.age,
-                onChanged: (v) => onChanged(character.copyWith(age: v)))),
+              Expanded(
+                  child: DndTextField(
+                      label: 'Idade',
+                      value: character.age,
+                      onChanged: (v) => onChanged(character.copyWith(age: v)))),
               const SizedBox(width: 8),
-              Expanded(child: DndTextField(
-                label: 'Altura', value: character.height,
-                onChanged: (v) => onChanged(character.copyWith(height: v)))),
+              Expanded(
+                  child: DndTextField(
+                      label: 'Altura',
+                      value: character.height,
+                      onChanged: (v) =>
+                          onChanged(character.copyWith(height: v)))),
             ]),
             const SizedBox(height: 8),
             DndTextField(
-              label: 'Peso', value: character.weight,
-              onChanged: (v) => onChanged(character.copyWith(weight: v))),
+                label: 'Peso',
+                value: character.weight,
+                onChanged: (v) => onChanged(character.copyWith(weight: v))),
             const SizedBox(height: 8),
             DndTextField(
-              label: 'Cor dos Olhos', value: character.eyeColor,
-              onChanged: (v) => onChanged(character.copyWith(eyeColor: v))),
+                label: 'Cor dos Olhos',
+                value: character.eyeColor,
+                onChanged: (v) => onChanged(character.copyWith(eyeColor: v))),
             const SizedBox(height: 8),
             DndTextField(
-              label: 'Cor da Pele', value: character.skinColor,
-              onChanged: (v) => onChanged(character.copyWith(skinColor: v))),
+                label: 'Cor da Pele',
+                value: character.skinColor,
+                onChanged: (v) => onChanged(character.copyWith(skinColor: v))),
             const SizedBox(height: 8),
             DndTextField(
-              label: 'Cor do Cabelo', value: character.hairColor,
-              onChanged: (v) => onChanged(character.copyWith(hairColor: v))),
+                label: 'Cor do Cabelo',
+                value: character.hairColor,
+                onChanged: (v) => onChanged(character.copyWith(hairColor: v))),
           ])),
         ]),
 
@@ -103,7 +162,8 @@ class DetailsTab extends ConsumerWidget {
         // ── Aliados & Organizações ────────────────────────────────────────────
         const SectionTitle('Aliados & Organizações'),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Expanded(child: Column(children: [
+          Expanded(
+              child: Column(children: [
             DndTextField(
               label: 'Nome da Organização',
               value: character.organizationName,
@@ -121,11 +181,28 @@ class DetailsTab extends ConsumerWidget {
           const SizedBox(width: 12),
           // Símbolo da organização
           GestureDetector(
-            onTap: () => _pickImage(
-              context, ref, 'org_symbol',
-              (p) => onChanged(character.copyWith(organizationSymbolPath: p))),
+            onTap: () {
+              final path = character.organizationSymbolPath;
+              if (path != null && File(path).existsSync()) {
+                _showImageOptions(
+                    context,
+                    ref,
+                    path,
+                    'org_symbol',
+                    (p) => onChanged(
+                        character.copyWith(organizationSymbolPath: p)));
+              } else {
+                _pickImage(
+                    context,
+                    ref,
+                    'org_symbol',
+                    (p) => onChanged(
+                        character.copyWith(organizationSymbolPath: p)));
+              }
+            },
             child: Container(
-              width: 90, height: 90,
+              width: 90,
+              height: 90,
               decoration: BoxDecoration(
                 color: AppColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(10),
@@ -135,7 +212,9 @@ class DetailsTab extends ConsumerWidget {
               child: character.organizationSymbolPath != null &&
                       File(character.organizationSymbolPath!).existsSync()
                   ? Image.file(File(character.organizationSymbolPath!),
-                      fit: BoxFit.cover)
+                      fit: BoxFit.cover,
+                      key: ValueKey(character.organizationSymbolPath),
+                      gaplessPlayback: true)
                   : _symbolPlaceholder(),
             ),
           ),
@@ -147,7 +226,8 @@ class DetailsTab extends ConsumerWidget {
           label: 'Habilidades adicionais, overflow da ficha principal...',
           value: character.additionalFeatures,
           maxLines: 8,
-          onChanged: (v) => onChanged(character.copyWith(additionalFeatures: v)),
+          onChanged: (v) =>
+              onChanged(character.copyWith(additionalFeatures: v)),
         ),
 
         // ── Tesouros ──────────────────────────────────────────────────────────
@@ -170,8 +250,8 @@ class DetailsTab extends ConsumerWidget {
         Icon(Icons.person_outline, color: AppColors.cardBorder, size: 40),
         SizedBox(height: 6),
         Text('Toque para\nadicionar foto',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: AppColors.textHint, fontSize: 11)),
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.textHint, fontSize: 11)),
       ],
     );
   }
@@ -182,8 +262,9 @@ class DetailsTab extends ConsumerWidget {
       children: [
         Icon(Icons.shield_outlined, color: AppColors.cardBorder, size: 28),
         SizedBox(height: 4),
-        Text('Símbolo', textAlign: TextAlign.center,
-          style: TextStyle(color: AppColors.textHint, fontSize: 10)),
+        Text('Símbolo',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.textHint, fontSize: 10)),
       ],
     );
   }

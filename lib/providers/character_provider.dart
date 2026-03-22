@@ -122,7 +122,7 @@ class SpellsNotifier extends FamilyAsyncNotifier<List<Spell>, String> {
   }
 
   @override
-  Future<void> atualizar(Spell spell) async {
+  Future<void> updateSpell(Spell spell) async {
     await ref.read(repositoryProvider).saveSpell(spell);
     state = AsyncData(
       (state.valueOrNull ?? [])

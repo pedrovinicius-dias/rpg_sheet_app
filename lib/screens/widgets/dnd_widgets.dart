@@ -593,8 +593,12 @@ class CharacterAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasImage = imagePath != null && File(imagePath!).existsSync();
+
     return GestureDetector(
-      onTap: onTap,
+      onTap: hasImage
+          ? () => _showImageOptions(context)
+          : onTap,
       child: Container(
         width: size, height: size,
         decoration: BoxDecoration(
@@ -603,8 +607,11 @@ class CharacterAvatar extends StatelessWidget {
           color: AppColors.surfaceVariant,
         ),
         clipBehavior: Clip.antiAlias,
-        child: imagePath != null && File(imagePath!).existsSync()
-            ? Image.file(File(imagePath!), fit: BoxFit.cover)
+        child: hasImage
+            ? Image.file(File(imagePath!),
+                fit: BoxFit.cover,
+                key: ValueKey(imagePath),
+                gaplessPlayback: true)
             : Stack(alignment: Alignment.center, children: [
                 Text(initials.toUpperCase(),
                   style: TextStyle(
@@ -624,6 +631,42 @@ class CharacterAvatar extends StatelessWidget {
                   ),
                 ),
               ]),
+      ),
+    );
+  }
+
+  void _showImageOptions(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: AppColors.surface,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          // Imagem em tamanho maior
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(12)),
+            child: Image.file(File(imagePath!),
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 280,
+              key: ValueKey(imagePath),
+            ),
+          ),
+          // Botões
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(children: [
+              Expanded(child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  onTap?.call();
+                },
+                icon: const Icon(Icons.edit, size: 16),
+                label: const Text('Alterar'),
+              )),
+            ]),
+          ),
+        ]),
       ),
     );
   }

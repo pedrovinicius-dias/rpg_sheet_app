@@ -15,15 +15,21 @@ class SpellsTab extends ConsumerWidget {
   final Character character;
 
   const SpellsTab({
-    super.key, required this.characterId, required this.character,
+    super.key,
+    required this.characterId,
+    required this.character,
   });
 
   int _spellcastingScore() {
     switch (character.spellcastingAbility) {
-      case 'intelligence': return character.intelligence;
-      case 'wisdom': return character.wisdom;
-      case 'charisma': return character.charisma;
-      default: return 10;
+      case 'intelligence':
+        return character.intelligence;
+      case 'wisdom':
+        return character.wisdom;
+      case 'charisma':
+        return character.charisma;
+      default:
+        return 10;
     }
   }
 
@@ -34,19 +40,16 @@ class SpellsTab extends ConsumerWidget {
     final score = _spellcastingScore();
     final saveDC = character.spellcastingAbility.isNotEmpty
         ? StatCalculator.spellSaveDC(
-            spellcastingAbilityScore: score,
-            characterLevel: character.level)
+            spellcastingAbilityScore: score, characterLevel: character.level)
         : null;
     final attackBonus = character.spellcastingAbility.isNotEmpty
         ? StatCalculator.spellAttackBonusStr(
-            spellcastingAbilityScore: score,
-            characterLevel: character.level)
+            spellcastingAbilityScore: score, characterLevel: character.level)
         : null;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
         // ── Cabeçalho de conjuração ──────────────────────────────────────────
         _SpellcastingHeader(
           character: character,
@@ -64,7 +67,7 @@ class SpellsTab extends ConsumerWidget {
         // ── Truques (círculo 0) ──────────────────────────────────────────────
         spellsAsync.when(
           loading: () => const Center(
-            child: CircularProgressIndicator(color: AppColors.gold)),
+              child: CircularProgressIndicator(color: AppColors.gold)),
           error: (e, _) => Text('Erro: $e'),
           data: (spells) => slotsAsync.when(
             loading: () => const SizedBox(),
@@ -82,10 +85,9 @@ class SpellsTab extends ConsumerWidget {
               // Círculos 1-9
               ...List.generate(9, (i) {
                 final circle = i + 1;
-                final slot = slots.firstWhere(
-                  (s) => s.circle == circle,
-                  orElse: () => SpellSlot(
-                    characterId: characterId, circle: circle));
+                final slot = slots.firstWhere((s) => s.circle == circle,
+                    orElse: () =>
+                        SpellSlot(characterId: characterId, circle: circle));
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: _SpellCircleSection(
@@ -129,9 +131,9 @@ class _SpellcastingHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder)),
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.cardBorder)),
       child: Column(children: [
         // Classe conjuradora
         DndTextField(
@@ -143,21 +145,22 @@ class _SpellcastingHeader extends StatelessWidget {
         // Atributo
         _AbilityDropdown(
           value: character.spellcastingAbility,
-          onChanged: (v) => onChanged(character.copyWith(spellcastingAbility: v)),
+          onChanged: (v) =>
+              onChanged(character.copyWith(spellcastingAbility: v)),
         ),
         const SizedBox(height: 12),
         // Stats calculados
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _SpellStat(label: 'ATRIBUTO',
-              value: abilityName.isEmpty ? '—' : abilityName),
+            _SpellStat(
+                label: 'ATRIBUTO',
+                value: abilityName.isEmpty ? '—' : abilityName),
             Container(width: 1, height: 40, color: AppColors.divider),
-            _SpellStat(label: 'CD DA MAGIA',
-              value: saveDC != null ? '$saveDC' : '—'),
+            _SpellStat(
+                label: 'CD DA MAGIA', value: saveDC != null ? '$saveDC' : '—'),
             Container(width: 1, height: 40, color: AppColors.divider),
-            _SpellStat(label: 'BÔN. ATAQUE',
-              value: attackBonus ?? '—'),
+            _SpellStat(label: 'BÔN. ATAQUE', value: attackBonus ?? '—'),
           ],
         ),
       ]),
@@ -183,13 +186,14 @@ class _SpellStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(children: [
       Text(value,
-        style: const TextStyle(
-          color: AppColors.textPrimary, fontSize: 22,
-          fontWeight: FontWeight.w700)),
+          style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 22,
+              fontWeight: FontWeight.w700)),
       const SizedBox(height: 2),
       Text(label,
-        style: const TextStyle(
-          color: AppColors.textHint, fontSize: 9, letterSpacing: 1)),
+          style: const TextStyle(
+              color: AppColors.textHint, fontSize: 9, letterSpacing: 1)),
     ]);
   }
 }
@@ -213,12 +217,17 @@ class _AbilityDropdown extends StatelessWidget {
       dropdownColor: AppColors.surface,
       style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
       icon: const Icon(Icons.arrow_drop_down, color: AppColors.gold, size: 18),
-      items: options.map((o) => DropdownMenuItem(
-        value: o.$1,
-        child: Text(o.$2,
-          style: const TextStyle(color: AppColors.textPrimary, fontSize: 13)),
-      )).toList(),
-      onChanged: (v) { if (v != null) onChanged(v); },
+      items: options
+          .map((o) => DropdownMenuItem(
+                value: o.$1,
+                child: Text(o.$2,
+                    style: const TextStyle(
+                        color: AppColors.textPrimary, fontSize: 13)),
+              ))
+          .toList(),
+      onChanged: (v) {
+        if (v != null) onChanged(v);
+      },
     );
   }
 }
@@ -247,9 +256,9 @@ class _SpellCircleSection extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder)),
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.cardBorder)),
       child: Column(children: [
         // Cabeçalho do círculo
         Padding(
@@ -257,7 +266,8 @@ class _SpellCircleSection extends ConsumerWidget {
           child: Row(children: [
             // Badge do círculo
             Container(
-              width: 28, height: 28,
+              width: 28,
+              height: 28,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppColors.primaryDark,
@@ -265,21 +275,25 @@ class _SpellCircleSection extends ConsumerWidget {
               ),
               alignment: Alignment.center,
               child: Text('$circle',
-                style: const TextStyle(
-                  color: AppColors.textOnPrimary, fontSize: 12,
-                  fontWeight: FontWeight.w700)),
+                  style: const TextStyle(
+                      color: AppColors.textOnPrimary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700)),
             ),
             const SizedBox(width: 8),
             Text(label,
-              style: const TextStyle(
-                color: AppColors.gold, fontSize: 12,
-                fontWeight: FontWeight.w700, letterSpacing: 1)),
+                style: const TextStyle(
+                    color: AppColors.gold,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1)),
             const Spacer(),
             // Espaços de magia (apenas para círculos 1-9)
-            if (slot != null) _SlotTracker(
-              slot: slot!,
-              onChanged: (s) => slotNotifier.atualizarSlot(s),
-            ),
+            if (slot != null)
+              _SlotTracker(
+                slot: slot!,
+                onChanged: (s) => slotNotifier.atualizarSlot(s),
+              ),
             // Botão adicionar magia
             IconButton(
               icon: const Icon(Icons.add, color: AppColors.gold, size: 20),
@@ -296,15 +310,17 @@ class _SpellCircleSection extends ConsumerWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text('Nenhuma magia. Toque + para adicionar.',
-                style: TextStyle(color: AppColors.textHint,
-                  fontSize: 12, fontStyle: FontStyle.italic)),
+                  style: TextStyle(
+                      color: AppColors.textHint,
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic)),
             ),
           )
         else
           ...spells.map((spell) => _SpellRow(
-            spell: spell,
-            characterId: characterId,
-          )),
+                spell: spell,
+                characterId: characterId,
+              )),
       ]),
     );
   }
@@ -326,12 +342,13 @@ class _SlotTracker extends StatelessWidget {
         return GestureDetector(
           onTap: () => onChanged(slot.copyWith(used: used ? i : i + 1)),
           child: Container(
-            width: 14, height: 14,
+            width: 14,
+            height: 14,
             margin: const EdgeInsets.only(right: 3),
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: used ? AppColors.primary : Colors.transparent,
-              border: Border.all(color: AppColors.primary, width: 1.5)),
+                shape: BoxShape.circle,
+                color: used ? AppColors.primary : Colors.transparent,
+                border: Border.all(color: AppColors.primary, width: 1.5)),
           ),
         );
       }),
@@ -341,8 +358,8 @@ class _SlotTracker extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6),
           child: Text('${slot.remaining}/${slot.total}',
-            style: const TextStyle(
-              color: AppColors.textSecondary, fontSize: 11)),
+              style: const TextStyle(
+                  color: AppColors.textSecondary, fontSize: 11)),
         ),
       ),
     ]);
@@ -355,10 +372,11 @@ class _SlotTracker extends StatelessWidget {
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: Text('Espaços — Círculo ${slot.circle}',
-          style: const TextStyle(color: AppColors.gold)),
+            style: const TextStyle(color: AppColors.gold)),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           TextField(
-            controller: ctrl, autofocus: true,
+            controller: ctrl,
+            autofocus: true,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             style: const TextStyle(color: AppColors.textPrimary, fontSize: 24),
@@ -367,16 +385,18 @@ class _SlotTracker extends StatelessWidget {
           ),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar',
-              style: TextStyle(color: AppColors.textSecondary))),
-          ElevatedButton(onPressed: () {
-            final total = int.tryParse(ctrl.text) ?? slot.total;
-            onChanged(slot.copyWith(
-              total: total.clamp(0, 9),
-              used: slot.used.clamp(0, total)));
-            Navigator.pop(context);
-          }, child: const Text('OK')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar',
+                  style: TextStyle(color: AppColors.textSecondary))),
+          ElevatedButton(
+              onPressed: () {
+                final total = int.tryParse(ctrl.text) ?? slot.total;
+                onChanged(slot.copyWith(
+                    total: total.clamp(0, 9), used: slot.used.clamp(0, total)));
+                Navigator.pop(context);
+              },
+              child: const Text('OK')),
         ],
       ),
     );
@@ -406,9 +426,10 @@ class _SpellRowState extends ConsumerState<_SpellRow> {
       key: Key(spell.id),
       direction: DismissDirection.endToStart,
       background: Container(
-        color: AppColors.danger, alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 16),
-        child: const Icon(Icons.delete, color: Colors.white)),
+          color: AppColors.danger,
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 16),
+          child: const Icon(Icons.delete, color: Colors.white)),
       onDismissed: (_) => notifier.remove(spell.id),
       child: Column(children: [
         InkWell(
@@ -419,31 +440,35 @@ class _SpellRowState extends ConsumerState<_SpellRow> {
               // Preparada
               if (spell.circle > 0)
                 GestureDetector(
-                  onTap: () => notifier.atualizar(
-                    spell.copyWith(isPrepared: !spell.isPrepared)),
+                  onTap: () => notifier
+                      .updateSpell(spell.copyWith(isPrepared: !spell.isPrepared)),
                   child: Container(
-                    width: 16, height: 16,
+                    width: 16,
+                    height: 16,
                     margin: const EdgeInsets.only(right: 8),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: spell.isPrepared
-                          ? AppColors.gold : Colors.transparent,
-                      border: Border.all(
+                        shape: BoxShape.circle,
                         color: spell.isPrepared
-                            ? AppColors.gold : AppColors.noProficiency,
-                        width: 1.5)),
+                            ? AppColors.gold
+                            : Colors.transparent,
+                        border: Border.all(
+                            color: spell.isPrepared
+                                ? AppColors.gold
+                                : AppColors.noProficiency,
+                            width: 1.5)),
                   ),
                 )
               else
                 const SizedBox(width: 24),
               // Nome (editável inline)
-              Expanded(child: _SpellNameField(
+              Expanded(
+                  child: _SpellNameField(
                 value: spell.name,
-                onChanged: (v) => notifier.atualizar(spell.copyWith(name: v)),
+                onChanged: (v) => notifier.updateSpell(spell.copyWith(name: v)),
               )),
               // Expand icon
               Icon(_expanded ? Icons.expand_less : Icons.expand_more,
-                color: AppColors.textHint, size: 18),
+                  color: AppColors.textHint, size: 18),
             ]),
           ),
         ),
@@ -453,15 +478,17 @@ class _SpellRowState extends ConsumerState<_SpellRow> {
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
             child: Column(children: [
               TextField(
-                maxLines: 4, minLines: 2,
+                maxLines: 4,
+                minLines: 2,
                 controller: TextEditingController(text: spell.description),
                 style: const TextStyle(
-                  color: AppColors.textSecondary, fontSize: 13),
+                    color: AppColors.textSecondary, fontSize: 13),
                 decoration: const InputDecoration(
-                  labelText: 'Descrição da magia',
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 8)),
-                onChanged: (v) => notifier.atualizar(spell.copyWith(description: v)),
+                    labelText: 'Descrição da magia',
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
+                onChanged: (v) =>
+                    notifier.updateSpell(spell.copyWith(description: v)),
               ),
               const SizedBox(height: 6),
               // Imagem da magia
@@ -498,18 +525,23 @@ class _SpellNameFieldState extends State<_SpellNameField> {
   }
 
   @override
-  void dispose() { _ctrl.dispose(); _focus.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => TextField(
-    controller: _ctrl, focusNode: _focus,
-    style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
-    decoration: const InputDecoration(
-      hintText: 'Nome da magia',
-      hintStyle: TextStyle(color: AppColors.textHint, fontSize: 13),
-      border: InputBorder.none,
-      contentPadding: EdgeInsets.symmetric(vertical: 2)),
-  );
+        controller: _ctrl,
+        focusNode: _focus,
+        style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+        decoration: const InputDecoration(
+            hintText: 'Nome da magia',
+            hintStyle: TextStyle(color: AppColors.textHint, fontSize: 13),
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(vertical: 2)),
+      );
 }
 
 class _SpellImageRow extends ConsumerWidget {
@@ -517,54 +549,104 @@ class _SpellImageRow extends ConsumerWidget {
   final String characterId;
   const _SpellImageRow({required this.spell, required this.characterId});
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Row(children: [
-      if (spell.imagePath != null && File(spell.imagePath!).existsSync())
-        GestureDetector(
-          onTap: () => _showFullImage(context),
-          child: Container(
-            width: 80, height: 60,
-            margin: const EdgeInsets.only(right: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: AppColors.cardBorder)),
-            clipBehavior: Clip.antiAlias,
-            child: Image.file(File(spell.imagePath!), fit: BoxFit.cover),
-          ),
-        ),
-      OutlinedButton.icon(
-        onPressed: () => _pickImage(context, ref),
-        icon: const Icon(Icons.add_photo_alternate, size: 16),
-        label: Text(
-          spell.imagePath == null ? 'Adicionar imagem' : 'Trocar imagem',
-          style: const TextStyle(fontSize: 12)),
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          minimumSize: Size.zero),
-      ),
-    ]);
-  }
-
   Future<void> _pickImage(BuildContext context, WidgetRef ref) async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery, imageQuality: 80);
+    final picked =
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
     if (picked == null) return;
-    final saved = await ref.read(repositoryProvider)
+    final saved = await ref
+        .read(repositoryProvider)
         .saveImage(characterId, picked.path, 'spell_${spell.id}');
-    ref.read(spellsProvider(characterId).notifier)
-        .atualizar(spell.copyWith(imagePath: saved));
+    // Limpa cache para forçar recarregamento
+    imageCache.clear();
+    imageCache.clearLiveImages();
+    ref
+        .read(spellsProvider(characterId).notifier)
+        .updateSpell(spell.copyWith(imagePath: saved));
   }
 
-  void _showFullImage(BuildContext context) {
-    if (spell.imagePath == null) return;
+  void _showImageOptions(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (_) => Dialog(
-        backgroundColor: Colors.black87,
-        child: Image.file(File(spell.imagePath!), fit: BoxFit.contain),
+        backgroundColor: AppColors.surface,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            child: Image.file(
+              File(spell.imagePath!),
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 280,
+              key: ValueKey(spell.imagePath),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(children: [
+              Expanded(
+                  child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _pickImage(context, ref);
+                },
+                icon: const Icon(Icons.edit, size: 16),
+                label: const Text('Alterar'),
+              )),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  ref
+                      .read(spellsProvider(characterId).notifier)
+                      .updateSpell(spell.copyWith(clearImage: true));
+                },
+                icon: const Icon(Icons.delete_outline,
+                    size: 16, color: AppColors.danger),
+                label: const Text('Remover',
+                    style: TextStyle(color: AppColors.danger)),
+                style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.danger)),
+              ),
+            ]),
+          ),
+        ]),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasImage =
+        spell.imagePath != null && File(spell.imagePath!).existsSync();
+
+    return Row(children: [
+      if (hasImage)
+        GestureDetector(
+          onTap: () => _showImageOptions(context, ref),
+          child: Container(
+            width: 80,
+            height: 60,
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: AppColors.gold)),
+            clipBehavior: Clip.antiAlias,
+            child: Image.file(File(spell.imagePath!),
+                fit: BoxFit.cover,
+                key: ValueKey(spell.imagePath),
+                gaplessPlayback: true),
+          ),
+        ),
+      if (!hasImage)
+        OutlinedButton.icon(
+          onPressed: () => _pickImage(context, ref),
+          icon: const Icon(Icons.add_photo_alternate, size: 16),
+          label: const Text('Adicionar imagem', style: TextStyle(fontSize: 12)),
+          style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              minimumSize: Size.zero),
+        ),
+    ]);
   }
 }
